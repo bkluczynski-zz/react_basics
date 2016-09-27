@@ -63,10 +63,58 @@
 	  id: 3
 	}];
 
+	function Stats(props) {
+	  var totalPlayers = props.players.length;
+	  var totalPoints = props.players.reduce(function (total, player) {
+	    return total + player.score;
+	  }, 0);
+	  return React.createElement(
+	    'table',
+	    { className: 'stats' },
+	    React.createElement(
+	      'tbody',
+	      null,
+	      React.createElement(
+	        'tr',
+	        null,
+	        React.createElement(
+	          'td',
+	          null,
+	          'Players:'
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          totalPlayers
+	        )
+	      ),
+	      React.createElement(
+	        'tr',
+	        null,
+	        React.createElement(
+	          'td',
+	          null,
+	          'Points:'
+	        ),
+	        React.createElement(
+	          'td',
+	          null,
+	          totalPoints
+	        )
+	      )
+	    )
+	  );
+	}
+
+	Stats.propTypes = {
+	  players: React.PropTypes.array.isRequired
+	};
+
 	function Header(props) {
 	  return React.createElement(
 	    'div',
 	    { className: 'header' },
+	    React.createElement(Stats, { players: props.players }),
 	    React.createElement(
 	      'h1',
 	      null,
@@ -76,7 +124,8 @@
 	}
 
 	Header.propTypes = {
-	  title: React.PropTypes.string.isRequired
+	  title: React.PropTypes.string.isRequired,
+	  players: React.PropTypes.array.isRequired
 	};
 
 	function Counter(props) {
@@ -85,7 +134,9 @@
 	    { className: 'counter' },
 	    React.createElement(
 	      'button',
-	      { className: 'counter-action decrement' },
+	      { className: 'counter-action decrement', onClick: function onClick() {
+	          props.onChange(-1);
+	        } },
 	      ' - '
 	    ),
 	    React.createElement(
@@ -97,14 +148,17 @@
 	    ),
 	    React.createElement(
 	      'button',
-	      { className: 'counter-action increment' },
+	      { className: 'counter-action increment', onClick: function onClick() {
+	          props.onChange(1);
+	        } },
 	      ' + '
 	    )
 	  );
 	}
 
 	Counter.propTypes = {
-	  score: React.PropTypes.number.isRequired
+	  score: React.PropTypes.number.isRequired,
+	  onChange: React.PropTypes.func.isRequired
 	};
 
 	function Player(props) {
@@ -119,14 +173,15 @@
 	    React.createElement(
 	      'div',
 	      { className: 'player-score' },
-	      React.createElement(Counter, { score: props.score })
+	      React.createElement(Counter, { score: props.score, onChange: props.onScoreChange })
 	    )
 	  );
 	}
 
 	Player.propTypes = {
 	  name: React.PropTypes.string.isRequired,
-	  score: React.PropTypes.number.isRequired
+	  score: React.PropTypes.number.isRequired,
+	  onScoreChange: React.PropTypes.func.isRequired
 	};
 
 	var Application = React.createClass({
@@ -152,22 +207,33 @@
 	    };
 	  },
 
+	  onScoreChange: function onScoreChange(index, delta) {
+	    console.log('onScoreChange', delta, index);
+	    this.state.players[index].score += delta;
+	    this.setState(this.state);
+	  },
+
 	  render: function render() {
 	    return React.createElement(
 	      'div',
 	      { className: 'scoreboard' },
-	      React.createElement(Header, { title: this.props.title }),
+	      React.createElement(Header, { title: this.props.title, players: this.state.players }),
 	      React.createElement(
 	        'div',
 	        { className: 'players' },
-	        this.state.players.map(function (player) {
-	          return React.createElement(Player, { name: player.name, score: player.score, key: player.id });
-	        })
+	        this.state.players.map(function (player, index) {
+	          return React.createElement(Player, {
+	            onScoreChange: function (delta) {
+	              this.onScoreChange(index, delta);
+	            }.bind(this),
+	            name: player.name,
+	            score: player.score,
+	            key: player.id });
+	        }.bind(this))
 	      )
 	    );
 	  }
 	});
-
 	ReactDOM.render(React.createElement(Application, { initialPlayers: PLAYERS }), document.getElementById('container'));
 
 /***/ },
