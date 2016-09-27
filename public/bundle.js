@@ -207,6 +207,11 @@
 	    React.createElement(
 	      'div',
 	      { className: 'player-name' },
+	      React.createElement(
+	        'a',
+	        { className: 'remove-player', onClick: props.onRemove },
+	        'x'
+	      ),
 	      props.name
 	    ),
 	    React.createElement(
@@ -220,7 +225,8 @@
 	Player.propTypes = {
 	  name: React.PropTypes.string.isRequired,
 	  score: React.PropTypes.number.isRequired,
-	  onScoreChange: React.PropTypes.func.isRequired
+	  onScoreChange: React.PropTypes.func.isRequired,
+	  onRemove: React.PropTypes.func.isRequired
 	};
 
 	var Application = React.createClass({
@@ -247,12 +253,10 @@
 	  },
 
 	  onScoreChange: function onScoreChange(index, delta) {
-	    console.log('onScoreChange', delta, index);
 	    this.state.players[index].score += delta;
 	    this.setState(this.state);
 	  },
 	  onPlayerAdd: function onPlayerAdd(name) {
-	    console.log("Player added:", name);
 	    this.state.players.push({
 	      name: name,
 	      score: 0,
@@ -260,6 +264,10 @@
 	    });
 	    this.setState(this.state);
 	    nextId += 1;
+	  },
+	  onRemovePlayer: function onRemovePlayer(index) {
+	    this.state.players.splice(index, 1);
+	    this.setState(this.state);
 	  },
 
 	  render: function render() {
@@ -274,6 +282,9 @@
 	          return React.createElement(Player, {
 	            onScoreChange: function (delta) {
 	              this.onScoreChange(index, delta);
+	            }.bind(this),
+	            onRemove: function () {
+	              this.onRemovePlayer(index);
 	            }.bind(this),
 	            name: player.name,
 	            score: player.score,
