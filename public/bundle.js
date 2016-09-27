@@ -62,6 +62,45 @@
 	  score: 42,
 	  id: 3
 	}];
+	var nextId = 4;
+
+	var AddPlayerForm = React.createClass({
+	  displayName: 'AddPlayerForm',
+
+	  propTypes: {
+	    onAdd: React.PropTypes.func.isRequired
+	  },
+
+	  getInitialState: function getInitialState() {
+	    return {
+	      name: ""
+	    };
+	  },
+
+	  onNameChange: function onNameChange(e) {
+	    console.log('onNameChange', e.target.value);
+	    this.setState({ name: e.target.value });
+	  },
+
+	  onSubmit: function onSubmit(e) {
+	    e.preventDefault();
+	    this.props.onAdd(this.state.name);
+	    this.setState({ name: "" });
+	  },
+
+	  render: function render() {
+	    return React.createElement(
+	      'div',
+	      { className: 'add-player-form' },
+	      React.createElement(
+	        'form',
+	        { onSubmit: this.onSubmit },
+	        React.createElement('input', { type: 'text', value: this.state.name, onChange: this.onNameChange }),
+	        React.createElement('input', { type: 'submit', value: 'Add Player' })
+	      )
+	    );
+	  }
+	});
 
 	function Stats(props) {
 	  var totalPlayers = props.players.length;
@@ -212,6 +251,16 @@
 	    this.state.players[index].score += delta;
 	    this.setState(this.state);
 	  },
+	  onPlayerAdd: function onPlayerAdd(name) {
+	    console.log("Player added:", name);
+	    this.state.players.push({
+	      name: name,
+	      score: 0,
+	      id: nextId
+	    });
+	    this.setState(this.state);
+	    nextId += 1;
+	  },
 
 	  render: function render() {
 	    return React.createElement(
@@ -230,7 +279,8 @@
 	            score: player.score,
 	            key: player.id });
 	        }.bind(this))
-	      )
+	      ),
+	      React.createElement(AddPlayerForm, { onAdd: this.onPlayerAdd })
 	    );
 	  }
 	});
