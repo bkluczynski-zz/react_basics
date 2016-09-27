@@ -69,21 +69,49 @@
 
 	    getInitialState: function getInitialState() {
 	        return {
-	            running: false
+	            running: false,
+	            elapsedTime: 0,
+	            previousTime: 0
 	        };
 	    },
 
+	    componentDidMount: function componentDidMount() {
+	        this.interval = setInterval(this.onTick, 100);
+	    },
+
+	    componentWillUnmount: function componentWillUnmount() {
+	        clearInterval(this.interval);
+	    },
+
+	    onTick: function onTick() {
+	        if (this.state.running) {
+	            var now = Date.now();
+	            this.setState({
+	                previousTime: now,
+	                elapsedTime: this.state.elapsedTime + (now - this.state.previousTime)
+	            });
+	        }
+	        console.log('onTick');
+	    },
+
 	    onStart: function onStart() {
-	        this.setState({ running: true });
+	        this.setState({ running: true,
+	            previousTime: Date.now()
+
+	        });
 	    },
 	    onStop: function onStop() {
 	        this.setState({ running: false });
 	    },
 	    onReset: function onReset() {
-	        this.setState({ running: false });
+	        this.setState({
+	            elapsedTime: 0,
+	            previousTime: Date.now()
+	        });
 	    },
 
 	    render: function render() {
+	        var seconds = Math.floor(this.state.elapsedTime / 1000);
 	        var startStop;
 	        if (this.state.running) {
 	            startStop = React.createElement(
@@ -110,7 +138,9 @@
 	            React.createElement(
 	                'div',
 	                { className: 'stopwatch-time' },
-	                ' 0 '
+	                ' ',
+	                seconds,
+	                ' '
 	            ),
 	            ' ',
 	            startStop,
