@@ -9,4 +9,4 @@ Additional functionality:
 - display total points collected by the players
 - display a number of players on the scoreboard
 
-
+(credit to TeamTreeHouse) 
